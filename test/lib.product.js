@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import {
-  ProductFields, ProductFullFields
+  ProductFields
 }
 from './field';
 
@@ -13,11 +13,15 @@ function checklist(result) {
   result.mfs.should.be.a('string');
   result.pn.should.be.a('string');
   result.description.should.be.a('string');
-  result.lead.should.be.a('boolean');
-  result.rohs.should.be.a('boolean');
+  result.documents.should.be.a('array');
+  result.documents[0].should.be.a('string');
   result.attributes.should.be.a('array');
   result.attributes.length.should.above(0);
   result.attributes[0].should.have.keys(['key', 'value']);
+  result.priceStores.should.be.a('array');
+  result.priceStores.length.should.above(0);
+  result.priceStores[0].should.have.keys(['amount', 'unitPrice']);
+  result.priceStores[0].amount.should.be.a('number');
 }
 
 function getHtml(fileName) {
@@ -56,14 +60,8 @@ describe('product page', function() {
         'http://china.rs-online.com/web/p/19-inch-cabinets/8020333/'
       );
       let result = await grabStrategy.getResult();
-      result.should.have.keys(ProductFullFields);
+      result.should.have.keys(ProductFields);
       checklist(result);
-      result.currency.should.be.a('string');
-      result.amount.should.be.a('number');
-      result.priceStores.should.be.a('array');
-      result.priceStores.length.should.above(0);
-      result.priceStores[0].should.have.keys(['amount', 'unitPrice']);
-      result.priceStores[0].amount.should.be.a('number');
       done();
     } catch (e) {
       done(e);
