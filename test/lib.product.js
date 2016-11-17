@@ -36,7 +36,7 @@ describe('product page', function() {
         'sample.html'
       );
       let grabStrategy = new GrabStrategy(html,
-        'http://www.chip1stop.com/web/TWN/zh/dispDetail.do?partId=TI01-0329806&mpn=INA137UA'
+        'http://china.rs-online.com/web/p/igbt-transistors/9195031/'
       );
       let result = await grabStrategy.getResult();
       result.should.have.keys(ProductFields);
@@ -53,7 +53,7 @@ describe('product page', function() {
         'sample2.html'
       );
       let grabStrategy = new GrabStrategy(html,
-        'http://www.chip1stop.com/web/TWN/zh/dispDetail.do?partId=STMI-0041892&mpn=L298N'
+        'http://china.rs-online.com/web/p/19-inch-cabinets/8020333/'
       );
       let result = await grabStrategy.getResult();
       result.should.have.keys(ProductFullFields);
