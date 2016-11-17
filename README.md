@@ -1,6 +1,6 @@
 # Digikey Scraper
 
-[![Build Status](https://travis-ci.org/alincode/digikey-cn-scraper.svg?branch=master)](https://travis-ci.org/alincode/digikey-cn-scraper)
+[![Build Status](https://travis-ci.org/alincode/china-rs-scraper.svg?branch=master)](https://travis-ci.org/alincode/china-rs-scraper)
 
 ### commend
 
