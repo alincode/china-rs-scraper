@@ -51,6 +51,7 @@ var Product = function () {
       var fields = {};
       fields.priceStores = this.getPriceStores($, fields);
       this.getInfoRows($, fields);
+      fields.documents = this.getDocuments($);
       fields.attributes = this.getAttrRows($, fields);
       return R.map(function (field) {
         return field === '' ? undefined : field;
@@ -59,22 +60,37 @@ var Product = function () {
   }, {
     key: 'getLead',
     value: function getLead(val) {
-      return val.indexOf('无铅') > -1;
+      return;
     }
   }, {
     key: 'getRohs',
     value: function getRohs(val) {
-      return val.indexOf('符合RoHS标准') > -1;
+      return;
     }
   }, {
     key: 'getAmount',
     value: function getAmount($) {
       var that = this;
-      var amount = that.getData($('.itemBuyBg .itemBuyLeft .startText').html());
-      amount = _lodash2.default.trim(amount.split(':')[1]);
-      amount = amount.split(' ')[0];
-      amount = amount.replace(',', '');
-      return parseInt(amount);
+      return;
+    }
+  }, {
+    key: 'getCategory',
+    value: function getCategory($) {
+      var that = this;
+      var categoryCnt = $('#breadcrumb li').length;
+      var category = that.getData($($('#breadcrumb li')[categoryCnt - 1]).html());
+      category = _lodash2.default.trim(category.split('[')[0]);
+      return category;
+    }
+  }, {
+    key: 'getDescription',
+    value: function getDescription($) {
+      var that = this;
+      var description = '';
+      $('.rangeOverview').each(function (i, elem) {
+        description += that.getData($(elem).html());
+      });
+      return description;
     }
   }, {
     key: 'getInfoRows',
@@ -84,22 +100,12 @@ var Product = function () {
 
       try {
         var that = this;
-        fields.pn = that.getData($('[itemprop=productID]').html());
-        fields.mfs = that.getData($('[itemprop=manufacturer] a').html());
+        fields.sku = that.getData($('[itemprop=sku]').html());
+        fields.pn = that.getData($('[itemprop=mpn]').html());
+        fields.mfs = that.getData($('[itemprop=brand]').html());
+        fields.description = that.getDescription($);
 
-        if ($('.itemBuyBg').length > 0) {
-          fields.amount = that.getAmount($);
-        }
-
-        $('#itemSpec1 li .box_tu3').each(function (i, elem) {
-          var val = that.getData($(elem).html());
-          if (i == 0) {
-            fields.lead = that.getLead(val);
-            fields.rohs = that.getRohs(val);
-          }
-          if (i == 1) fields.category = val.split(' ')[0];
-          if (i == 3) fields.sku = val.split('：')[1];
-        });
+        fields.category = that.getCategory($);
       } catch (e) {
         console.error('e:', e.message);
       }
@@ -113,6 +119,16 @@ var Product = function () {
       });
       return data;
     }
+  }, {
+    key: 'getDocuments',
+    value: function getDocuments($) {
+      var that = this;
+      var docRows = [];
+      var docs = [];
+      var docUrl = $('.techRefLink a').attr('onclick').split('\'')[1];
+      docs.push(docUrl);
+      return docs;
+    }
 
     // 規格
 
@@ -124,7 +140,7 @@ var Product = function () {
       var attrTdRows = [];
       var attrs = [];
 
-      $('.itemSpec2 tr th').each(function (i, elem) {
+      $('.specTableContainer .column2').each(function (i, elem) {
         var title = that.getData($(elem).html());
         var value = that.getData($(elem).next().html());
         if (value) {
@@ -142,27 +158,29 @@ var Product = function () {
     key: 'getCurrency',
     value: function getCurrency($) {
       var that = this;
-      var currency = that.getData($('.itemBuyBg .itemBuyRight p')).split('(')[1];
-      currency = currency.replace(')', '');
+      var currency = $('[itemprop=priceCurrency]').attr('content');
       return currency;
     }
   }, {
     key: 'getPriceStoresPrice',
     value: function getPriceStoresPrice($, elem) {
-      return parseInt($(elem).find('th').html().replace('&#xFF5E;', ''));
+      return parseInt($(elem).find('span').html());
     }
   }, {
     key: 'getPriceStores',
     value: function getPriceStores($, fields) {
       var that = this;
-      if ($('.itemBuyBg .itemBuyRight p').length == 0) return;
       fields.currency = that.getCurrency($);
-      var dollars = $('.catalog-pricing tr');
       var priceCollection = [];
-      $('.itemBuyBg .itemBuyRight table tr').each(function (i, elem) {
+      var firstObj = {};
+      firstObj.amount = 1;
+      firstObj.unitPrice = $('[itemprop=price]').html();
+      priceCollection.push(firstObj);
+
+      $('.value-row .breakRangeWithoutUnit').each(function (i, elem) {
         var obj = {};
         obj.amount = that.getPriceStoresPrice($, elem);
-        obj.unitPrice = that.getData($(elem).find('td').html());
+        obj.unitPrice = $(elem).next().find('[itemprop=price]').html();
         priceCollection.push(obj);
       });
       return priceCollection;
